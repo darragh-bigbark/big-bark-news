@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  password     String
+  organisation String
+  orgType      String
+  role         String   @default("submitter")
+  createdAt    DateTime @default(now())
+  posts        Post[]
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  token     String   @unique
+  confirmed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id           String    @id @default(cuid())
+  title        String
+  slug         String    @unique
+  type         String
+  summary      String
+  content      String
+  imageUrl     String?
+  eventDate    String?
+  eventVenue   String?
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  websiteUrl   String?
+  status       String    @default("pending")
+  authorId     String
+  author       User      @relation(fields: [authorId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  publishedAt  DateTime?
+}

@@ -1,65 +1,167 @@
-import Image from "next/image";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import PostCard from "@/components/PostCard";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const posts = await prisma.post.findMany({
+    where: { status: "approved" },
+    include: { author: { select: { name: true, organisation: true, orgType: true } } },
+    orderBy: { publishedAt: "desc" },
+    take: 6,
+  });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div>
+      {/* Hero */}
+      <section
+        className="relative text-white py-24 px-4 overflow-hidden"
+        style={{ minHeight: "420px" }}
+      >
+        {/* Background image */}
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1600&h=600&fit=crop&q=80"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+          />
+          {/* Dark overlay */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(135deg, rgba(15,36,68,0.88) 0%, rgba(15,36,68,0.75) 100%)" }}
+          />
+        </div>
+
+        {/* Content */}
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            Big Bark{" "}
+            <span style={{ color: "var(--gold)" }}>News & Media</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ opacity: 0.9 }}>
+            The canine industry&apos;s trusted source for news, press releases, events, and
+            stories from charities and businesses making a difference.
           </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/submit" className="btn-primary text-base">
+              Submit Your Story
+            </Link>
+            <Link
+              href="/auth/register"
+              className="btn-outline text-base"
+              style={{ borderColor: "rgba(255,255,255,0.6)", color: "#fff" }}
+            >
+              Register Your Organisation
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Category quick links */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {[
+            {
+              href: "/news",
+              icon: "📰",
+              label: "News",
+              desc: "Breaking stories and industry updates",
+              color: "#dbeafe",
+              border: "#bfdbfe",
+            },
+            {
+              href: "/press-releases",
+              icon: "📣",
+              label: "Press Releases",
+              desc: "Official announcements from organisations",
+              color: "#fef9c3",
+              border: "#fde68a",
+            },
+            {
+              href: "/events",
+              icon: "📅",
+              label: "Events",
+              desc: "Upcoming shows, seminars and charity events",
+              color: "#dcfce7",
+              border: "#bbf7d0",
+            },
+          ].map((cat) => (
+            <Link key={cat.href} href={cat.href} className="no-underline block">
+              <div
+                className="rounded-xl p-6 border-2 text-center"
+                style={{
+                  background: cat.color,
+                  borderColor: cat.border,
+                  transition: "box-shadow 0.2s, transform 0.2s",
+                }}
+              >
+                <div style={{ fontSize: "2.5rem" }} className="mb-2">{cat.icon}</div>
+                <h3 className="font-bold text-lg mb-1" style={{ color: "var(--navy)" }}>
+                  {cat.label}
+                </h3>
+                <p className="text-sm" style={{ color: "var(--muted)" }}>{cat.desc}</p>
+              </div>
+            </Link>
+          ))}
         </div>
-      </main>
+
+        {/* Latest posts */}
+        {posts.length > 0 ? (
+          <>
+            <div className="section-header">
+              <h2 className="text-2xl font-bold" style={{ color: "var(--navy)" }}>
+                Latest from Big Bark
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/news" className="btn-outline">All News</Link>
+              <Link href="/press-releases" className="btn-outline">All Press Releases</Link>
+              <Link href="/events" className="btn-outline">All Events</Link>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-20">
+            <div style={{ fontSize: "4rem" }} className="mb-4">🐶</div>
+            <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--navy)" }}>
+              No posts yet
+            </h2>
+            <p className="mb-6" style={{ color: "var(--muted)" }}>
+              Be the first to share a story with the canine community.
+            </p>
+            <Link href="/submit" className="btn-primary">Submit Your Story</Link>
+          </div>
+        )}
+      </section>
+
+      {/* RSS callout */}
+      <section
+        style={{ background: "#f0f4ff", borderTop: "3px solid var(--gold)" }}
+        className="py-12 px-4"
+      >
+        <div className="max-w-4xl mx-auto text-center">
+          <div style={{ fontSize: "3rem" }} className="mb-3">📡</div>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--navy)" }}>
+            Stay Informed via RSS
+          </h2>
+          <p className="mb-6" style={{ color: "var(--muted)" }}>
+            Journalists and media outlets can subscribe to our RSS feeds — choose all posts
+            or filter by charity or business organisations.
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <a href="/api/rss" className="btn-primary">All Posts Feed</a>
+            <a href="/api/rss?org=charity" className="btn-outline">Charity Feed</a>
+            <a href="/api/rss?org=business" className="btn-outline">Business Feed</a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
